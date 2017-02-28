@@ -9,8 +9,8 @@ using namespace blitz;
 
 //choice of parameters g^2 \mu = 1
 
-const int size_x=1024; // # steps in transverse direction
-const int N_Y=100; // # steps in long direction
+const int size_x=512; // # steps in transverse direction
+const int N_Y=10; // # steps in long direction
 
 const double step_x=0.05;
 const double L_x=step_x*size_x; // transverse extent
