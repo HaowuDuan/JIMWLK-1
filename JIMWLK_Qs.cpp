@@ -661,7 +661,7 @@ void output(double Y,colorArr& V_c)
             	double ky  = 2.0*M_PI*j/L_x;
             	double ky_t  = 1.0/step_x*sin(ky*step_x);
 				double k2 = (kx_t*kx_t+ky_t*ky_t); 
-                if(k2>pow(1.0/0.78,2))
+                //if(k2>pow(1.0/0.78,2))
 				{
 					sum(i,j) += compFT(i,j)*conj(compFT(i,j));
                 	sumqPerp(i,j) += compFT(i,j)*conj(compFT(i,j)) * k2 ;
@@ -694,7 +694,7 @@ void output(double Y,colorArr& V_c)
     FFTW_b(sum, pS);
     FFTW_b(sumqPerp, pSPerp);
 
-/*
+
     for(int i=0; i<size_x; i++)
     {
         for(int j=0; j<size_x; j++)
@@ -702,10 +702,9 @@ void output(double Y,colorArr& V_c)
            d_data <<  sqrt(x2(sin(int_to_x(i)*M_PI/L_x)) + x2(sin(int_to_x(j)*M_PI/L_x)))*L_x/M_PI  << " " << 1.0-real(pS (i,j))*0.5/3.0/size_x2/size_x2 << "\n" ;
         }
     }
-	*/
+	
 
 
-    d_data<< real(pS(0,0)) << " " <<  real(pSPerp(0,0)) << "\n" <<  flush;
     cout << Y << " " << real(pS(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp(0,0)) *0.5/3.0/size_x2/size_x2<< "\n" <<  flush;
 
 
