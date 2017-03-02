@@ -652,6 +652,17 @@ void output(double Y,colorArr& V_c)
     sum_all=cd(0.0,0.0);
  	sumqPerp=cd(0.0,0.0);
 
+	int max_k_int = 100; 
+	double max_k = 15.0; 
+	double step_k = max_k/max_k_int; 
+	vector<double> distr(max_k_int);
+	vector<double> normal(max_k_int);
+
+	for (int i=0;i<max_k;i++) 
+	{
+		distr.at(i) = 0.0; 
+		normal.at(i) = 0.0; 
+	}
 
     for(int a=0; a<9; a++)
     {
@@ -682,11 +693,43 @@ void output(double Y,colorArr& V_c)
 					sum(i,j) += compFT(i,j)*conj(compFT(i,j));
                 	sumqPerp(i,j) += compFT(i,j)*conj(compFT(i,j)) * k2 ;
 				}
-				if(sqrt(k2)<15) fileout<< Y << " " << sqrt(k2) << " " << real(sum_all(i,j))*0.5/3.0/size_x2 <<  " " << imag(sum_all(i,j))*0.5/3.0/size_x2 <<"\n" << flush;
-            }
+
+			}
         }
     }
 
+
+	//Flatten 
+	for(int i=0; i<size_x; i=i+1)
+    {        
+		double kx  = 2.0*M_PI*i/L_x;
+        double kx_t  = 1.0/step_x*sin(kx*step_x);
+        for(int j=0; j<size_x; j=j+1)
+        {
+
+            double ky  = 2.0*M_PI*j/L_x;
+            double ky_t  = 1.0/step_x*sin(ky*step_x);
+			double k2 = (kx_t*kx_t+ky_t*ky_t);
+
+
+			int ik =  int(sqrt(k2) / step_k + 0.5); 
+			if (ik < max_k_int) 
+			{
+				distr.at(ik) += real(sum_all(i,j))*0.5/3.0/size_x2; 
+				normal.at(ik) += 1.0; 
+			}
+			if(sqrt(k2)<15) fileout << Y << " " << kx_t << " " << ky_t << " " 
+			    << real(sum_all(i,j))*0.5/3.0/size_x2 <<"\n" << flush;
+
+		}
+		fileout << "\n"; 
+	}
+
+	/*for (int ik=0;ik<max_k_int;ik++)
+	{
+		fileout << Y << " " << ik*step_k << " " 
+			    << distr.at(ik)/normal.at(ik) <<"\n" << flush;
+	}*/
 
 /*
 	for(int i=0; i<size_x/4; i++)
@@ -1290,7 +1333,7 @@ int main(void)
         V_c = V_n;
         //cout << Y+dY_times_alpha << "\n" << flush;
         i++;
-        if(i==25)
+        if(i==100)
         {
             output(Y+dY_times_alpha, V_c);
             //TMD(Y+dY_times_alpha, V_c);
