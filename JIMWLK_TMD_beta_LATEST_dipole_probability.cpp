@@ -688,7 +688,7 @@ void output(double Y,colorArr& V_c)
 
 				sum_all(i,j) += compFT(i,j)*conj(compFT(i,j));
 
-                if(k2>pow(1.0/Qs_Y,2))
+                if(k2>pow(Qs_Y,2))
 				{
 					sum(i,j) += compFT(i,j)*conj(compFT(i,j));
                 	sumqPerp(i,j) += compFT(i,j)*conj(compFT(i,j)) * k2 ;
@@ -718,8 +718,8 @@ void output(double Y,colorArr& V_c)
 				distr.at(ik) += real(sum_all(i,j))*0.5/3.0/size_x2; 
 				normal.at(ik) += 1.0; 
 			}
-			if(sqrt(k2)<15) fileout << Y << " " << kx_t << " " << ky_t << " " 
-			    << real(sum_all(i,j))*0.5/3.0/size_x2 <<"\n" << flush;
+			if( sqrt(k2) < 15*Qs(Y) ) fileout << Y << " " << kx_t/Qs(Y) << " " << ky_t/Qs(Y) << " " 
+			    << real(sum_all(i,j))*0.5/3.0/size_x2 << " " << Qs(y) <<"\n" << flush;
 
 		}
 		fileout << "\n"; 
