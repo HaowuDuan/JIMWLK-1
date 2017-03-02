@@ -719,7 +719,7 @@ void output(double Y,colorArr& V_c)
 				normal.at(ik) += 1.0; 
 			}
 			if( sqrt(k2) < 15*Qs(Y) ) fileout << Y << " " << kx_t/Qs(Y) << " " << ky_t/Qs(Y) << " " 
-			    << real(sum_all(i,j))*0.5/3.0/size_x2 << " " << Qs(y) <<"\n" << flush;
+			    << real(sum_all(i,j))*0.5/3.0/size_x2 << " " << Qs(Y) <<"\n" << flush;
 
 		}
 		fileout << "\n"; 
