@@ -60,6 +60,15 @@ double int_to_x(int i)
 }
 
 
+double Qs(double Y)
+{
+	double A0 = 0.307138;
+	double A1 = 1.51005;
+	double A2 = 0.376858;
+	return A0*exp(A1*Y)+A2;
+}
+
+
 int x_to_int(double x)
 {
     int out = int(x/step_x+0.5);
@@ -660,8 +669,9 @@ void output(double Y,colorArr& V_c)
 
             	double ky  = 2.0*M_PI*j/L_x;
             	double ky_t  = 1.0/step_x*sin(ky*step_x);
-				double k2 = (kx_t*kx_t+ky_t*ky_t); 
-                if(k2>pow(1.0/0.78,2))
+				double k2 = (kx_t*kx_t+ky_t*ky_t);
+				double Qs_Y = Qs(Y); 
+                if(k2>pow(1.0/Qs_Y,2))
 				{
 					sum(i,j) += compFT(i,j)*conj(compFT(i,j));
                 	sumqPerp(i,j) += compFT(i,j)*conj(compFT(i,j)) * k2 ;
@@ -706,7 +716,7 @@ void output(double Y,colorArr& V_c)
 
 
     d_data<< real(pS(0,0)) << " " <<  real(pSPerp(0,0)) << "\n" <<  flush;
-    cout << Y << " " << real(pS(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp(0,0)) *0.5/3.0/size_x2/size_x2<< "\n" <<  flush;
+    cout << Y << " " << real(pS(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp(0,0)) *0.5/3.0/size_x2/size_x2<< " "<< Qs(Y) <<  "\n" <<    flush;
 
 
 
