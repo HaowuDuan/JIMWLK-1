@@ -63,9 +63,9 @@ double int_to_x(int i)
 
 double Qs(double Y)
 {
-	double A0 = 0.307138;
-	double A1 = 1.51005;
-	double A2 = 0.376858;
+	double A0 = 0.269933;
+	double A1 = 1.60715;
+	double A2 = 0.430101;
 	return A0*exp(A1*Y)+A2;
 }
 
