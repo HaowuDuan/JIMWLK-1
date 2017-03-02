@@ -40,6 +40,7 @@ typedef blitz::TinyMatrix<double,8,8>  colorAdMat;
 typedef Array<colorMat,2>  colorArr;
 typedef Array<colorAdMat,2>  colorAdArr;
 
+ofstream fileout;
 
 
 AdComp DecomposeAdMatrix(colorAdMat U)
@@ -643,10 +644,12 @@ void output(double Y,colorArr& V_c)
     blitz::Array<cd,2>  comp(size_x, size_x);
     blitz::Array<cd,2>  compFT(size_x, size_x);
     blitz::Array<cd,2>  sum(size_x, size_x);
+    blitz::Array<cd,2>  sum_all(size_x, size_x);
     blitz::Array<cd,2>  sumqPerp(size_x, size_x);
     blitz::Array<cd,2>  pS(size_x, size_x);
     blitz::Array<cd,2>  pSPerp(size_x, size_x);
     sum=cd(0.0,0.0);
+    sum_all=cd(0.0,0.0);
  	sumqPerp=cd(0.0,0.0);
 
 
@@ -670,12 +673,16 @@ void output(double Y,colorArr& V_c)
             	double ky  = 2.0*M_PI*j/L_x;
             	double ky_t  = 1.0/step_x*sin(ky*step_x);
 				double k2 = (kx_t*kx_t+ky_t*ky_t);
-				double Qs_Y = Qs(Y); 
+				double Qs_Y = Qs(Y);
+
+				sum_all(i,j) += compFT(i,j)*conj(compFT(i,j));
+
                 if(k2>pow(1.0/Qs_Y,2))
 				{
 					sum(i,j) += compFT(i,j)*conj(compFT(i,j));
                 	sumqPerp(i,j) += compFT(i,j)*conj(compFT(i,j)) * k2 ;
 				}
+				if(sqrt(k2)<15) fileout<< Y << " " << sqrt(k2) << " " << real(sum_all(i,j))*0.5/3.0/size_x2 <<  " " << imag(sum_all(i,j))*0.5/3.0/size_x2 <<"\n" << flush;
             }
         }
     }
@@ -715,7 +722,7 @@ void output(double Y,colorArr& V_c)
 	*/
 
 
-    d_data<< real(pS(0,0)) << " " <<  real(pSPerp(0,0)) << "\n" <<  flush;
+    //d_data<< real(pS(0,0)) << " " <<  real(pSPerp(0,0)) << "\n" <<  flush;
     cout << Y << " " << real(pS(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp(0,0)) *0.5/3.0/size_x2/size_x2<< " "<< Qs(Y) <<  "\n" <<    flush;
 
 
@@ -1262,6 +1269,10 @@ int main(void)
     cin >> eventID;
     dname = "TMD_data_"+eventID;
     mkdir(dname.c_str(),S_IRWXU | S_IRWXG);
+
+    string name = "/efs/MD_" + toString(eventID) + ".dat";
+    fileout.open(name.c_str());
+
 
     colorArr V_c(size_x,size_x);
     colorArr V_n(size_x,size_x);
