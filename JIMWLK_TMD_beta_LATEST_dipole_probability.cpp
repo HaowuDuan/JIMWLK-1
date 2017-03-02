@@ -1292,7 +1292,6 @@ void binner_effective_action(double Y, colorArr& V_c)
         {
             fileout  << ir * stepR + rMin << " " << iD * stepD + dMin   << " "  << bin(ir,iD) << " "<< Y <<   "\n" <<flush;
         }
-        fileout << "\n";
     }
     fileout.close();
 
