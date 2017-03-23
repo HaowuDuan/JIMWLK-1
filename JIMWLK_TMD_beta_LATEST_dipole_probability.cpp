@@ -651,12 +651,14 @@ void output(double Y,colorArr& V_c)
     sum=cd(0.0,0.0);
     sum_all=cd(0.0,0.0);
  	sumqPerp=cd(0.0,0.0);
+ 	comp=cd(0.0,0.0);
 
 	int max_k_int = 100; 
 	double max_k = 15.0; 
 	double step_k = max_k/max_k_int; 
 	vector<double> distr(max_k_int);
 	vector<double> normal(max_k_int);
+	double Qs_Y = Qs(Y);
 
 	for (int i=0;i<max_k;i++) 
 	{
@@ -670,7 +672,12 @@ void output(double Y,colorArr& V_c)
         {
             for(int j=0; j<size_x; j=j+1)
             {
-                comp(i,j) = su3_group_element(V_c(i,j), a);
+				double x = int_to_x(i);
+				double y = int_to_x(j);
+
+				double distance2 = ( x2(sin(0.5*x/L_d_by_2pi)) + x2(sin(0.5*y/L_d_by_2pi))  ) * x2(2.0*L_d_by_2pi );
+				//if(distance2*Qs_Y*Qs_Y<1) comp(i,j) = su3_group_element(V_c(i,j), a);
+				comp(i,j) = su3_group_element(V_c(i,j), a) * exp(-0.5*distance2*Qs_Y*Qs_Y);
             }
         }
         FFTW(comp, compFT);
@@ -684,7 +691,6 @@ void output(double Y,colorArr& V_c)
             	double ky  = 2.0*M_PI*j/L_x;
             	double ky_t  = 1.0/step_x*sin(ky*step_x);
 				double k2 = (kx_t*kx_t+ky_t*ky_t);
-				double Qs_Y = Qs(Y);
 
 				sum_all(i,j) += compFT(i,j)*conj(compFT(i,j));
 
@@ -1326,7 +1332,7 @@ int main(void)
     //binner_effective_action_WW (0,V_c);
 
     int i=0;
-    for(double Y=0; Y<1.51; Y+=dY_times_alpha)
+    for(double Y=0; Y<1.101; Y+=dY_times_alpha)
     {
         evo_step(V_c, V_n);
         V_c = V_n;
