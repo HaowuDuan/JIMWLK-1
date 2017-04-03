@@ -1,5 +1,4 @@
 #include "JIMWLK.h"
-#include "GM.h"
 #include "string_conv.h"
 
 using namespace std;
@@ -449,8 +448,8 @@ void rho_generator(blitz::Array<double,2>& rho)
     }
 
     // Periodic boundary conditions
-    for(int i=0; i<size_x; i++) rho(i,0)=rho(i,size_x-1);
-    for(int j=0; j<size_x; j++) rho(0,j)=rho(size_x-1,j);
+    //for(int i=0; i<size_x; i++) rho(i,0)=rho(i,size_x-1);
+    //for(int j=0; j<size_x; j++) rho(0,j)=rho(size_x-1,j);
 
 }
 
@@ -476,20 +475,11 @@ int index_x_boundary(int in)
 {
     //periodic boundaries
     int i = in;
-    if(i<0) i = i + size_x - 1;
-    if(i>size_x-1) i = i - (size_x-1);
+    if(i<0) i = i + size_x;
+    if(i>size_x-1) i = i - size_x;
     return i;
 }
 
-
-int index_y_boundary(int in)
-{
-    //periodic boundaries
-    int i = in;
-    if(i<0) i = i + size_x - 1;
-    if(i>size_x-1) i = i - (size_x-1);
-    return i;
-}
 
 
 TinyMatrix<cd,3,3> fV(int i, int j, vector<Array<double,2> >&  A_a)
@@ -639,32 +629,53 @@ void output(double Y,colorArr& V_c)
     fname = dname+"/S_" + toString(Y) + ".dat";
     d_data.open(fname.c_str());
 
-
-
     blitz::Array<cd,2>  comp(size_x, size_x);
     blitz::Array<cd,2>  compFT(size_x, size_x);
     blitz::Array<cd,2>  sum(size_x, size_x);
-    blitz::Array<cd,2>  sum_all(size_x, size_x);
     blitz::Array<cd,2>  sumqPerp(size_x, size_x);
     blitz::Array<cd,2>  pS(size_x, size_x);
     blitz::Array<cd,2>  pSPerp(size_x, size_x);
-    sum=cd(0.0,0.0);
+    
+	blitz::Array<cd,2>  sum_all(size_x, size_x);
+
+    blitz::Array<cd,2>  comp_R1(size_x, size_x);
+    blitz::Array<cd,2>  compFT_R1(size_x, size_x);
+    blitz::Array<cd,2>  sum_R1(size_x, size_x);
+    blitz::Array<cd,2>  sumqPerp_R1(size_x, size_x);
+    blitz::Array<cd,2>  pS_R1(size_x, size_x);
+    blitz::Array<cd,2>  pSPerp_R1(size_x, size_x);
+	
+	blitz::Array<cd,2>  sum_all_R1(size_x, size_x);
+
+    blitz::Array<cd,2>  comp_R2(size_x, size_x);
+    blitz::Array<cd,2>  compFT_R2(size_x, size_x);
+    blitz::Array<cd,2>  sum_R2(size_x, size_x);
+    blitz::Array<cd,2>  sumqPerp_R2(size_x, size_x);
+    blitz::Array<cd,2>  pS_R2(size_x, size_x);
+    blitz::Array<cd,2>  pSPerp_R2(size_x, size_x);
+
+	blitz::Array<cd,2>  sum_all_R2(size_x, size_x);
+
     sum_all=cd(0.0,0.0);
+    sum_all_R1=cd(0.0,0.0);
+    sum_all_R2=cd(0.0,0.0);
+    
+	sum=cd(0.0,0.0);
  	sumqPerp=cd(0.0,0.0);
  	comp=cd(0.0,0.0);
+
+    sum_R1=cd(0.0,0.0);
+ 	sumqPerp_R1=cd(0.0,0.0);
+ 	comp_R1=cd(0.0,0.0);
+
+	sum_R2=cd(0.0,0.0);
+ 	sumqPerp_R2=cd(0.0,0.0);
+ 	comp_R2=cd(0.0,0.0);
 
 	int max_k_int = 100; 
 	double max_k = 15.0; 
 	double step_k = max_k/max_k_int; 
-	vector<double> distr(max_k_int);
-	vector<double> normal(max_k_int);
 	double Qs_Y = Qs(Y);
-
-	for (int i=0;i<max_k;i++) 
-	{
-		distr.at(i) = 0.0; 
-		normal.at(i) = 0.0; 
-	}
 
     for(int a=0; a<9; a++)
     {
@@ -672,32 +683,45 @@ void output(double Y,colorArr& V_c)
         {
             for(int j=0; j<size_x; j=j+1)
             {
-				double x = int_to_x(i);
-				double y = int_to_x(j);
+				double x = L_x/2.0-int_to_x(i);
+				double y = L_x/2.0-int_to_x(j);
 
-				double distance2 = ( x2(sin(0.5*x/L_d_by_2pi)) + x2(sin(0.5*y/L_d_by_2pi))  ) * x2(2.0*L_d_by_2pi );
-				//if(distance2*Qs_Y*Qs_Y<1) comp(i,j) = su3_group_element(V_c(i,j), a);
-				comp(i,j) = su3_group_element(V_c(i,j), a) * exp(-0.5*distance2*Qs_Y*Qs_Y);
+				double distance2 = x*x+y*y; 
+				comp(i,j) = su3_group_element(V_c(i,j), a);
+				comp_R1(i,j) = su3_group_element(V_c(i,j), a) * exp(-0.5*distance2*Qs_Y*Qs_Y);
+				comp_R2(i,j) = su3_group_element(V_c(i,j), a) * exp(-0.5*distance2*Qs_Y*Qs_Y/4.0);
             }
         }
+
         FFTW(comp, compFT);
-        for(int i=0; i<size_x; i=i+1)
+        FFTW(comp_R1, compFT_R1);
+        FFTW(comp_R2, compFT_R2);
+        
+		for(int i=0; i<size_x; i=i+1)
         {        
 			double kx  = 2.0*M_PI*i/L_x;
-        	double kx_t  = 1.0/step_x*sin(kx*step_x);
+        	double kx_t  = 2.0/step_x*sin(kx*step_x/2.0);
             for(int j=0; j<size_x; j=j+1)
             {
 
             	double ky  = 2.0*M_PI*j/L_x;
-            	double ky_t  = 1.0/step_x*sin(ky*step_x);
+            	double ky_t  = 2.0/step_x*sin(ky*step_x/2.0);
 				double k2 = (kx_t*kx_t+ky_t*ky_t);
-
+				
 				sum_all(i,j) += compFT(i,j)*conj(compFT(i,j));
+				sum_all_R1(i,j) += compFT_R1(i,j)*conj(compFT_R1(i,j));
+				sum_all_R2(i,j) += compFT_R2(i,j)*conj(compFT_R2(i,j));
 
                 if(k2>pow(Qs_Y,2))
 				{
 					sum(i,j) += compFT(i,j)*conj(compFT(i,j));
                 	sumqPerp(i,j) += compFT(i,j)*conj(compFT(i,j)) * k2 ;
+
+					sum_R1(i,j) += compFT_R1(i,j)*conj(compFT_R1(i,j));
+                	sumqPerp_R1(i,j) += compFT_R1(i,j)*conj(compFT_R1(i,j)) * k2 ;
+
+					sum_R2(i,j) += compFT_R2(i,j)*conj(compFT_R2(i,j));
+                	sumqPerp_R2(i,j) += compFT_R2(i,j)*conj(compFT_R2(i,j)) * k2 ;
 				}
 
 			}
@@ -705,77 +729,45 @@ void output(double Y,colorArr& V_c)
     }
 
 
-	//Flatten 
 	for(int i=0; i<size_x; i=i+1)
     {        
 		double kx  = 2.0*M_PI*i/L_x;
-        double kx_t  = 1.0/step_x*sin(kx*step_x);
+        double kx_t  = 2.0/step_x*sin(kx*step_x/2);
         for(int j=0; j<size_x; j=j+1)
         {
-
             double ky  = 2.0*M_PI*j/L_x;
-            double ky_t  = 1.0/step_x*sin(ky*step_x);
+            double ky_t  = 2.0/step_x*sin(ky*step_x/2);
 			double k2 = (kx_t*kx_t+ky_t*ky_t);
 
-
-			int ik =  int(sqrt(k2) / step_k + 0.5); 
-			if (ik < max_k_int) 
+			if( sqrt(k2) < 15*Qs(Y) ) 
 			{
-				distr.at(ik) += real(sum_all(i,j))*0.5/3.0/size_x2; 
-				normal.at(ik) += 1.0; 
+				fileout << Y << " " << sqrt(k2)/Qs(Y) << " "  
+				<< real(sum_all(i,j))*0.5/3.0/size_x2 << " " 
+				<< real(sum_all_R1(i,j))*0.5/3.0/size_x2 << " " 
+				<< real(sum_all_R2(i,j))*0.5/3.0/size_x2 << " " 
+				<< Qs(Y) <<"\n" << flush;
 			}
-			if( sqrt(k2) < 15*Qs(Y) ) fileout << Y << " " << kx_t/Qs(Y) << " " << ky_t/Qs(Y) << " " 
-			    << real(sum_all(i,j))*0.5/3.0/size_x2 << " " << Qs(Y) <<"\n" << flush;
-
-		}
-		fileout << "\n"; 
-	}
-
-	/*for (int ik=0;ik<max_k_int;ik++)
-	{
-		fileout << Y << " " << ik*step_k << " " 
-			    << distr.at(ik)/normal.at(ik) <<"\n" << flush;
-	}*/
-
-/*
-	for(int i=0; i<size_x/4; i++)
-    {
-   double kx  = 2.0*M_PI*i/L_x;
-        double kx_t  = 1.0/step_x*sin(kx*step_x);
-
-        for(int j=0; j<size_x/4; j++)
-		{
-	            double ky  = 2.0*M_PI*j/L_x;
-            double ky_t  = 1.0/step_x*sin(ky*step_x);
-			double k  = sqrt( kx_t*kx_t + ky_t*ky_t);
-			double S = real(sum(i,j))/6.0;
-			//cout << S << "\n";
-			d_data <<  k 
-			  << " " << S << "\n" ;
 		}
 	}
-*/
 
 
     FFTW_b(sum, pS);
     FFTW_b(sumqPerp, pSPerp);
 
-/*
-    for(int i=0; i<size_x; i++)
-    {
-        for(int j=0; j<size_x; j++)
-        {
-           d_data <<  sqrt(x2(sin(int_to_x(i)*M_PI/L_x)) + x2(sin(int_to_x(j)*M_PI/L_x)))*L_x/M_PI  << " " << 1.0-real(pS (i,j))*0.5/3.0/size_x2/size_x2 << "\n" ;
-        }
-    }
-	*/
+    FFTW_b(sum_R1, pS_R1);
+    FFTW_b(sumqPerp_R1, pSPerp_R1);
 
+    FFTW_b(sum_R2, pS_R2);
+    FFTW_b(sumqPerp_R2, pSPerp_R2);
 
     //d_data<< real(pS(0,0)) << " " <<  real(pSPerp(0,0)) << "\n" <<  flush;
-    cout << Y << " " << real(pS(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp(0,0)) *0.5/3.0/size_x2/size_x2<< " "<< Qs(Y) <<  "\n" <<    flush;
-
-
-
+	std::cout.precision(15);    
+	
+	cout << Y << " " 
+		<< real(pS(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp(0,0)) *0.5/3.0/size_x2/size_x2 << " "
+		<< real(pS_R1(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp_R1(0,0)) *0.5/3.0/size_x2/size_x2 << " "
+		<< real(pS_R2(0,0))*0.5/3.0/size_x2/size_x2 << " " <<  real(pSPerp_R2(0,0)) *0.5/3.0/size_x2/size_x2 << " "
+		<< Qs(Y) <<  "\n" <<    flush;
 }
 
 void TMD(double Y, colorArr& V_c)

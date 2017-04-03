@@ -16,6 +16,7 @@
 using namespace std;
 using namespace blitz;
 
+typedef complex<double> cd;
 
 
 typedef complex<double> cd;
@@ -218,4 +219,97 @@ void FFTW_b(Array<complex<double>,2> &field, Array<complex<double>,2> &fftOfFiel
 
 
 
+
+
+
+
+
+vector < TinyMatrix<cd,3,3>  > get_lambda()
+{
+		vector < TinyMatrix<cd,3,3>  > lambda(9);
+    //for (int i =0; i<lambda.size(); i++) lambda.at(i).resize(3,3);
+	
+    lambda.at(0)= 
+		cd(0,0), cd(1,0), cd(0,0),
+    cd(1,0), cd(0,0), cd(0,0),
+    cd(0,0), cd(0,0), cd(0,0);
+
+    lambda.at(1)= 
+		cd(0,0), cd(0,-1), cd(0,0),
+    cd(0,1), cd(0,0), cd(0,0),
+    cd(0,0), cd(0,0), cd(0,0);
+
+    lambda.at(2)= 
+		cd(1,0), cd(0,0), cd(0,0),
+    cd(0,0), cd(-1,0), cd(0,0),
+    cd(0,0), cd(0,0), cd(0,0);
+
+    lambda.at(3)= 
+		cd(0,0), cd(0,0), cd(1,0),
+    cd(0,0), cd(0,0), cd(0,0),
+    cd(1,0), cd(0,0), cd(0,0);
+
+    lambda.at(4)= 
+		cd(0,0), cd(0,0), cd(0,-1),
+    cd(0,0), cd(0,0), cd(0,0),
+    cd(0,1), cd(0,0), cd(0,0);
+
+    lambda.at(5)= 
+		cd(0,0), cd(0,0), cd(0,0),
+    cd(0,0), cd(0,0), cd(1,0),
+    cd(0,0), cd(1,0), cd(0,0);
+
+    lambda.at(6)= 
+		cd(0,0), cd(0,0), cd(0,0),
+    cd(0,0), cd(0,0), cd(0,-1),
+    cd(0,0), cd(0,1), cd(0,0);
+
+    lambda.at(7)= 
+		cd(1/sqrt(3),0), cd(0,0), cd(0,0),
+    cd(0,0), cd(1/sqrt(3),0), cd(0,0),
+    cd(0,0), cd(0,0), cd(-2/sqrt(3),0);
+
+
+    lambda.at(8)= 
+		cd(1,0), cd(0,0), cd(0,0),
+    cd(0,0), cd(1,0), cd(0,0),
+    cd(0,0), cd(0,0), cd(1,0);
+
+		lambda.at(8) *= cd(sqrt(2.0/3.0),0);
+
+		for (int i=0;i<lambda.size();i++) lambda.at(i)*=cd(0.5,0);
+
+return lambda;
+}
+
+
+
+
+
+vector < TinyMatrix<double,8,8>  > get_F()
+{
+		vector < TinyMatrix<double,8,8>  > F(8);
+	
+    vector < TinyMatrix<cd,3,3>  >  L = get_lambda();
+
+    for (int i=0;i<8; i++) F.at(i)= 0.0;
+
+	for (int a=0;a<8; a++)
+	for (int b=0;b<8; b++)
+	for (int c=0;c<8; c++)
+	{
+blitz::TinyMatrix<cd,3,3> tmpab =  Product (L.at(a),L.at(b)); 
+	blitz::TinyMatrix<cd,3,3> tmpba =  Product (L.at(b),L.at(a));
+blitz::TinyMatrix<cd,3,3> tmpd ; 
+tmpd= tmpab-tmpba;   
+		F.at(a)(b,c) = real(complex<double>(0,-2.0)
+				* trace( Product( tmpd , L.at(c)  ) ));
+		
+		//if(F.at(a)(b,c)!=0.0) cerr<< a << " " << b << " " << c << " " << F.at(a)(b,c) << endl;
+	}
+
+
+
+		return F;
+}
 
