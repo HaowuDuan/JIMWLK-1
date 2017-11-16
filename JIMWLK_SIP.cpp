@@ -933,7 +933,7 @@ void oneOverR_init(double Y)
 	oneOverR.at(0) = 0.0; 
 	oneOverR.at(1) = Qs(0)/3.0;
     oneOverR.at(2) = sqrt(Ncoll)*Qs(0)/3.0;
-	oneOverR.at(3) = Qs(0)/3.0/sqrt(Ncoll);
+	oneOverR.at(3) = Qs(0)/(3.0/sqrt(2.0));
 }
 
 int main(void)
